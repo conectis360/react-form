@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { FormEvent } from "react";
+import "./App.css";
 
 type Contact = {
   name: string;
@@ -8,15 +9,15 @@ type Contact = {
 };
 
 export function ContactPage() {
-  const [contact, setContact] = useState<Contact>({
-    name: "",
-    email: "",
-    reason: "",
-    notes: "",
-  });
-  const fieldStyle = "flex flex-col mb-2";
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const contact = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      reason: formData.get("reason"),
+      notes: formData.get("notes"),
+    } as Contact;
     console.log("Submitted details:", contact);
   }
 
@@ -27,30 +28,45 @@ export function ContactPage() {
         If you enter your details we'll get back to you as soon as we can.
       </p>
       <form onSubmit={handleSubmit}>
-        <div className={fieldStyle}>
-          <label htmlFor="name">Your name</label>
+        <div className="flex flex-col mb-2">
+          <label
+            htmlFor="name"
+            className="mb-1 text-sm font-medium text-gray-700"
+          >
+            Your name
+          </label>
           <input
             type="text"
             id="name"
-            value={contact.name}
-            onChange={(e) => setContact({ ...contact, name: e.target.value })}
+            name="name"
+            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
-        <div className={fieldStyle}>
-          <label htmlFor="email">Your email address</label>
+        <div className="flex flex-col mb-2">
+          <label
+            htmlFor="email"
+            className="mb-1 text-sm font-medium text-gray-700"
+          >
+            Your email address
+          </label>
           <input
             type="email"
             id="email"
-            value={contact.email}
-            onChange={(e) => setContact({ ...contact, email: e.target.value })}
+            name="email"
+            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
-        <div className={fieldStyle}>
-          <label htmlFor="reason">Reason you need to contact us</label>
+        <div className="flex flex-col mb-2">
+          <label
+            htmlFor="reason"
+            className="mb-1 text-sm font-medium text-gray-700"
+          >
+            Reason you need to contact us
+          </label>
           <select
             id="reason"
-            value={contact.reason}
-            onChange={(e) => setContact({ ...contact, reason: e.target.value })}
+            name="reason"
+            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
           >
             <option value=""></option>
             <option value="Support">Support</option>
@@ -58,18 +74,23 @@ export function ContactPage() {
             <option value="Other">Other</option>
           </select>
         </div>
-        <div className={fieldStyle}>
-          <label htmlFor="notes">Additional notes</label>
+        <div className="flex flex-col mb-2">
+          <label
+            htmlFor="notes"
+            className="mb-1 text-sm font-medium text-gray-700"
+          >
+            Additional notes
+          </label>
           <textarea
             id="notes"
-            value={contact.notes}
-            onChange={(e) => setContact({ ...contact, notes: e.target.value })}
+            name="notes"
+            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
         <div>
           <button
             type="submit"
-            className="mt-2 h-10 px-6 font-semibold bg-black text-white"
+            className="mt-2 h-10 px-6 font-semibold bg-black text-white rounded-md hover:bg-gray-800 transition duration-300"
           >
             Submit
           </button>
