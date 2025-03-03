@@ -1,6 +1,7 @@
-import { FormEvent } from "react";
 import "./App.css";
-import { Form, ActionFunctionArgs, redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { ActionFunctionArgs, redirect } from "react-router-dom";
 
 type Contact = {
   name: string;
@@ -22,13 +23,20 @@ export async function contactPageAction({ request }: ActionFunctionArgs) {
 }
 
 export function ContactPage() {
+  const { register, handleSubmit } = useForm<Contact>();
+  const navigate = useNavigate();
+  function onSubmit(contact: Contact) {
+    console.log("Submitted details:", contact);
+    navigate(`/thank-you/${contact.name}`);
+  }
+
   return (
     <div className="flex flex-col py-10 max-w-md mx-auto">
       <h2 className="text-3xl font-bold underline mb-3">Contact Us</h2>
       <p className="mb-3">
         If you enter your details we'll get back to you as soon as we can.
       </p>
-      <form method="post">
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col mb-2">
           <label
             htmlFor="name"
@@ -39,8 +47,8 @@ export function ContactPage() {
           <input
             type="text"
             id="name"
-            name="name"
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
+            {...register("name")}
             required
           />
         </div>
@@ -54,7 +62,7 @@ export function ContactPage() {
           <input
             type="email"
             id="email"
-            name="email"
+            {...register("email")}
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
             required
             pattern="\S+@\S+\.\S+"
@@ -69,7 +77,7 @@ export function ContactPage() {
           </label>
           <select
             id="reason"
-            name="reason"
+            {...register("reason")}
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
             required
           >
@@ -88,7 +96,7 @@ export function ContactPage() {
           </label>
           <textarea
             id="notes"
-            name="notes"
+            {...register("notes")}
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
           />
         </div>
