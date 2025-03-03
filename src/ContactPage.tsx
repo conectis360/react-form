@@ -1,5 +1,6 @@
 import { FormEvent } from "react";
 import "./App.css";
+import { Form, ActionFunctionArgs, redirect } from "react-router-dom";
 
 type Contact = {
   name: string;
@@ -8,26 +9,26 @@ type Contact = {
   notes: string;
 };
 
-export function ContactPage() {
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const contact = {
-      name: formData.get("name"),
-      email: formData.get("email"),
-      reason: formData.get("reason"),
-      notes: formData.get("notes"),
-    } as Contact;
-    console.log("Submitted details:", contact);
-  }
+export async function contactPageAction({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const contact = {
+    name: formData.get("name"),
+    email: formData.get("email"),
+    reason: formData.get("reason"),
+    notes: formData.get("notes"),
+  } as Contact;
+  console.log("Submitted details:", contact);
+  return redirect(`/thank-you/${formData.get("name")}`);
+}
 
+export function ContactPage() {
   return (
     <div className="flex flex-col py-10 max-w-md mx-auto">
       <h2 className="text-3xl font-bold underline mb-3">Contact Us</h2>
       <p className="mb-3">
         If you enter your details we'll get back to you as soon as we can.
       </p>
-      <form onSubmit={handleSubmit}>
+      <form method="post">
         <div className="flex flex-col mb-2">
           <label
             htmlFor="name"
@@ -40,6 +41,7 @@ export function ContactPage() {
             id="name"
             name="name"
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
+            required
           />
         </div>
         <div className="flex flex-col mb-2">
@@ -54,6 +56,8 @@ export function ContactPage() {
             id="email"
             name="email"
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
+            required
+            pattern="\S+@\S+\.\S+"
           />
         </div>
         <div className="flex flex-col mb-2">
@@ -67,6 +71,7 @@ export function ContactPage() {
             id="reason"
             name="reason"
             className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
+            required
           >
             <option value=""></option>
             <option value="Support">Support</option>
