@@ -1,7 +1,6 @@
-import "./App.css";
 import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { ActionFunctionArgs, redirect } from "react-router-dom";
+import { useForm, FieldError } from "react-hook-form";
+import { ValidationError } from "./ValidationError";
 
 type Contact = {
   name: string;
@@ -10,24 +9,23 @@ type Contact = {
   notes: string;
 };
 
-export async function contactPageAction({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const contact = {
-    name: formData.get("name"),
-    email: formData.get("email"),
-    reason: formData.get("reason"),
-    notes: formData.get("notes"),
-  } as Contact;
-  console.log("Submitted details:", contact);
-  return redirect(`/thank-you/${formData.get("name")}`);
-}
-
 export function ContactPage() {
-  const { register, handleSubmit } = useForm<Contact>();
+  const fieldStyle = "flex flex-col mb-2";
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Contact>({
+    mode: "onBlur",
+    reValidateMode: "onBlur",
+  });
   const navigate = useNavigate();
   function onSubmit(contact: Contact) {
     console.log("Submitted details:", contact);
     navigate(`/thank-you/${contact.name}`);
+  }
+  function getEditorStyle(fieldError: FieldError | undefined) {
+    return fieldError ? "border-red-500" : "";
   }
 
   return (
@@ -36,74 +34,59 @@ export function ContactPage() {
       <p className="mb-3">
         If you enter your details we'll get back to you as soon as we can.
       </p>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col mb-2">
-          <label
-            htmlFor="name"
-            className="mb-1 text-sm font-medium text-gray-700"
-          >
-            Your name
-          </label>
+      <form noValidate onSubmit={handleSubmit(onSubmit)}>
+        <div className={fieldStyle}>
+          <label htmlFor="name">Your name</label>
           <input
             type="text"
             id="name"
-            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
-            {...register("name")}
-            required
+            {...register("name", {
+              required: "You must enter your name",
+            })}
+            className={getEditorStyle(errors.name)}
           />
+          <ValidationError fieldError={errors.name} />
         </div>
-        <div className="flex flex-col mb-2">
-          <label
-            htmlFor="email"
-            className="mb-1 text-sm font-medium text-gray-700"
-          >
-            Your email address
-          </label>
+        <div className={fieldStyle}>
+          <label htmlFor="email">Your email address</label>
           <input
             type="email"
             id="email"
-            {...register("email")}
-            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
-            required
-            pattern="\S+@\S+\.\S+"
+            {...register("email", {
+              required: "You must enter your email address",
+              pattern: {
+                value: /\S+@\S+\.\S+/,
+                message: "Entered value does not match email format",
+              },
+            })}
+            className={getEditorStyle(errors.email)}
           />
+          <ValidationError fieldError={errors.email} />
         </div>
-        <div className="flex flex-col mb-2">
-          <label
-            htmlFor="reason"
-            className="mb-1 text-sm font-medium text-gray-700"
-          >
-            Reason you need to contact us
-          </label>
+        <div className={fieldStyle}>
+          <label htmlFor="reason">Reason you need to contact us</label>
           <select
             id="reason"
-            {...register("reason")}
-            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
-            required
+            {...register("reason", {
+              required: "You must enter the reason for contacting us",
+            })}
+            className={getEditorStyle(errors.reason)}
           >
             <option value=""></option>
             <option value="Support">Support</option>
             <option value="Feedback">Feedback</option>
             <option value="Other">Other</option>
           </select>
+          <ValidationError fieldError={errors.reason} />
         </div>
-        <div className="flex flex-col mb-2">
-          <label
-            htmlFor="notes"
-            className="mb-1 text-sm font-medium text-gray-700"
-          >
-            Additional notes
-          </label>
-          <textarea
-            id="notes"
-            {...register("notes")}
-            className="border rounded-md p-2 focus:outline-none focus:ring focus:border-blue-300"
-          />
+        <div className={fieldStyle}>
+          <label htmlFor="notes">Additional notes</label>
+          <textarea id="notes" {...register("notes")} />
         </div>
         <div>
           <button
             type="submit"
-            className="mt-2 h-10 px-6 font-semibold bg-black text-white rounded-md hover:bg-gray-800 transition duration-300"
+            className="mt-2 h-10 px-6 font-semibold bg-black text-white"
           >
             Submit
           </button>
